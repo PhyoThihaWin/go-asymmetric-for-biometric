@@ -2,17 +2,15 @@ package biometric
 
 import (
 	"context"
-
-	"gorm.io/gorm"
 )
 
 type BiometricUseCase struct {
-	db *gorm.DB
+	biometricRepo Repository
 }
 
-func NewBiometricUseCase(d *gorm.DB) *BiometricUseCase {
+func NewBiometricUseCase(biometricRepo Repository) *BiometricUseCase {
 	return &BiometricUseCase{
-		db: d,
+		biometricRepo: biometricRepo,
 	}
 }
 
