@@ -6,10 +6,10 @@ import (
 )
 
 func RegisterHTTPEndpoints(router *gin.Engine, uc biometric.UseCase) {
-	h := NewHandler(uc)
+	handler := NewHandler(uc)
 
 	authEndpoints := router.Group("/user")
 	{
-		authEndpoints.POST("/biometric", h.Create)
+		authEndpoints.POST("/biometric", handler.CreateBiometric)
 	}
 }

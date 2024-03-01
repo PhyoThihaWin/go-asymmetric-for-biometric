@@ -1,0 +1,18 @@
+port: 9090
+
+mysql:
+  username: "dbeaver"
+  password: "dbeaver"
+  name: "showcase_db"
+  port: 3306
+
+# auth:
+#   hash_salt: "hash_salt"
+#   signing_key: "signing_key"
+#   token_ttl: 86400
+
+# mongo:
+#   uri: "mongodb://mongodb:27017"
+#   name: "testdb"
+#   user_collection: "users"
+#   bookmark_collection: "bookmarks"

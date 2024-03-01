@@ -1,4 +1,4 @@
-package config
+package server
 
 import (
 	"context"
@@ -10,15 +10,13 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 	biometricHttp "pthw.com/asymmetric-for-biometric/delivery/http/biometric"
 	biometric "pthw.com/asymmetric-for-biometric/internal/biometric"
-)
-
-var (
-	db *gorm.DB
+	"pthw.com/asymmetric-for-biometric/models"
 )
 
 type App struct {
@@ -29,6 +27,8 @@ type App struct {
 
 func NewApp() *App {
 	db := initDB()
+	db.Debug()
+	db.AutoMigrate(&models.UserBiometric{})
 
 	// userRepo := authmongo.NewUserRepository(db, viper.GetString("mongo.user_collection"))
 	// bookmarkRepo := bmmongo.NewBookmarkRepository(db, viper.GetString("mongo.bookmark_collection"))
@@ -50,6 +50,7 @@ func NewApp() *App {
 
 }
 
+// Run gin routing https
 func (a *App) Run(port string) error {
 	// Init gin handler
 	router := gin.Default()
@@ -89,8 +90,15 @@ func (a *App) Run(port string) error {
 	return a.httpServer.Shutdown(ctx)
 }
 
+// Connection to db with GORM
 func initDB() *gorm.DB {
-	dsn := "dbeaver:dbeaver@tcp(localhost:3306)/showcase_db?charset=utf8mb4&parseTime=True&loc=Local"
+	USERNAME := viper.GetString("mysql.username")
+	PASSWORD := viper.GetString("mysql.password")
+	DBNAME := viper.GetString("mysql.name")
+	PORT := viper.GetInt("mysql.port")
+	dsn := fmt.Sprintf("%s:%s@tcp(localhost:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		USERNAME, PASSWORD, PORT, DBNAME)
+	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
