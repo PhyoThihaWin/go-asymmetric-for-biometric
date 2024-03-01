@@ -29,6 +29,7 @@ func NewApp() *App {
 	db := initDB()
 	db.Debug()
 	db.AutoMigrate(&models.UserBiometric{})
+	db.AutoMigrate(&models.CHALLENGE{})
 
 	// userRepo := authmongo.NewUserRepository(db, viper.GetString("mongo.user_collection"))
 	// bookmarkRepo := bmmongo.NewBookmarkRepository(db, viper.GetString("mongo.bookmark_collection"))

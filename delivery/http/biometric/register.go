@@ -11,5 +11,7 @@ func RegisterHTTPEndpoints(router *gin.Engine, uc biometric.UseCase) {
 	authEndpoints := router.Group("/user")
 	{
 		authEndpoints.POST("/biometric", handler.CreateBiometric)
+		authEndpoints.GET("/biometric/challenge/:device_id", handler.GetChallenge)
+		authEndpoints.POST("/biometric/verify", handler.ValidateBiometric)
 	}
 }
