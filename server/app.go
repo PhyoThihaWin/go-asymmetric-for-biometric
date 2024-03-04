@@ -97,7 +97,7 @@ func initDB() *gorm.DB {
 	PASSWORD := viper.GetString("mysql.password")
 	DBNAME := viper.GetString("mysql.name")
 	PORT := viper.GetInt("mysql.port")
-	dsn := fmt.Sprintf("%s:%s@tcp(localhost:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	dsn := fmt.Sprintf("%s:%s@tcp(mysql:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		USERNAME, PASSWORD, PORT, DBNAME)
 	fmt.Println(dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
