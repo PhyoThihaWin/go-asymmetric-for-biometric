@@ -13,8 +13,6 @@ services:
         condition: service_healthy
     volumes:
       - ./:/app
-    networks:
-      - "mynet"
 
   mysql:
     image: mysql:8.3
@@ -36,15 +34,8 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 5s
       retries: 10
-    networks:
-      - "mynet"
 
 # Names our volume
 volumes:
   db:
     driver: local
-
-# Network
-networks:
-  mynet:
-    driver: "bridge"
