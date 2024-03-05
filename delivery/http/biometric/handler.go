@@ -62,7 +62,7 @@ func (h *Handler) GetChallenge(ctx *gin.Context) {
 		if err != nil {
 			utils.APIResponse(ctx, err.Error(), http.StatusBadRequest, http.MethodGet, nil)
 		} else {
-			utils.APIResponse(ctx, "Challenge retrieved", http.StatusCreated, http.MethodGet, data)
+			utils.APIResponse(ctx, "Challenge retrieved", http.StatusOK, http.MethodGet, data)
 		}
 	}
 }
@@ -84,7 +84,7 @@ func (h *Handler) ValidateBiometric(ctx *gin.Context) {
 		if err != nil {
 			utils.APIResponse(ctx, err.Error(), http.StatusBadRequest, http.MethodGet, nil)
 		} else {
-			utils.APIResponse(ctx, data, http.StatusCreated, http.MethodGet, data)
+			utils.APIResponse(ctx, data, http.StatusOK, http.MethodGet, data)
 		}
 	}
 }
