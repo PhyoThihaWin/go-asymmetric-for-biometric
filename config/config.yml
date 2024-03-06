@@ -1,8 +1,8 @@
 port: 9090
 
 mysql:
-  username: "dbeaver"
-  password: "dbeaver"
+  username: "timely"
+  password: "6ZpCj16&hs78DQ4+A"
   name: "showcase_db"
   port: 3306
 

@@ -15,7 +15,7 @@ services:
       - ./:/app
 
   mysql:
-    image: mysql:8.3
+    image: mysql:latest
     container_name: biometric_mysql
     command: mysqld --user=root
     cap_add:
@@ -27,8 +27,8 @@ services:
       - 3306:3306
     environment:
       - MYSQL_DATABASE=showcase_db
-      - MYSQL_USER=dbeaver
-      - MYSQL_PASSWORD=dbeaver
+      - MYSQL_USER=timely
+      - MYSQL_PASSWORD=6ZpCj16&hs78DQ4+A
       - MYSQL_ROOT_PASSWORD=root
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
