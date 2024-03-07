@@ -14,7 +14,7 @@ type Responses struct {
 type ErrorResponse struct {
 	StatusCode int         `json:"statusCode"`
 	Method     string      `json:"method"`
-	Errors      interface{} `json:"errors"`
+	Error      interface{} `json:"error"`
 }
 
 func APIResponse(ctx *gin.Context, Message string, StatusCode int, Method string, Data interface{}) {
@@ -34,11 +34,11 @@ func APIResponse(ctx *gin.Context, Message string, StatusCode int, Method string
 	}
 }
 
-func ValidatorErrorResponse(ctx *gin.Context, StatusCode int, Method string, Error interface{}) {
+func ApiErrorResponse(ctx *gin.Context, StatusCode int, Method string, Error interface{}) {
 	errResponse := ErrorResponse{
 		StatusCode: StatusCode,
 		Method:     Method,
-		Errors:      Error,
+		Error:      Error,
 	}
 
 	ctx.JSON(StatusCode, errResponse)

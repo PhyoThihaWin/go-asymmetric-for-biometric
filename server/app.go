@@ -10,50 +10,43 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 	biometricHttp "pthw.com/asymmetric-for-biometric/delivery/http/biometric"
-	biometric "pthw.com/asymmetric-for-biometric/internal/biometric"
+	"pthw.com/asymmetric-for-biometric/internal/biometric"
 	"pthw.com/asymmetric-for-biometric/models"
 )
 
 type App struct {
-	httpServer *http.Server
-
+	httpServer  *http.Server
 	biometricUC biometric.UseCase
 }
 
 func NewApp() *App {
 	db := initDB()
-	db.Debug()
+	if os.Getenv("ENV") == "debug" {
+		db.Debug()
+	}
 	db.AutoMigrate(&models.UserBiometric{})
 	db.AutoMigrate(&models.CHALLENGE{})
-
-	// userRepo := authmongo.NewUserRepository(db, viper.GetString("mongo.user_collection"))
-	// bookmarkRepo := bmmongo.NewBookmarkRepository(db, viper.GetString("mongo.bookmark_collection"))
-
-	// return &App{
-	// 	bookmarkUC: bmusecase.NewBookmarkUseCase(bookmarkRepo),
-	// 	authUC: authusecase.NewAuthUseCase(
-	// 		userRepo,
-	// 		viper.GetString("auth.hash_salt"),
-	// 		[]byte(viper.GetString("auth.signing_key")),
-	// 		viper.GetDuration("auth.token_ttl"),
-	// 	),
-	// }
 
 	biometricRepo := biometric.NewBiometricRepository(db)
 	return &App{
 		biometricUC: biometric.NewBiometricUseCase(biometricRepo),
 	}
-
 }
 
 // Run gin routing https
 func (a *App) Run(port string) error {
+
 	// Init gin handler
+	if os.Getenv("ENV") == "debug" {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	router := gin.Default()
 	router.Use(
 		gin.Recovery(),
@@ -62,7 +55,6 @@ func (a *App) Run(port string) error {
 
 	// Set up http handlers
 	// API endpoints
-
 	biometricHttp.RegisterHTTPEndpoints(router, a.biometricUC)
 
 	// HTTP Server
@@ -93,13 +85,15 @@ func (a *App) Run(port string) error {
 
 // Connection to db with GORM
 func initDB() *gorm.DB {
-	USERNAME := viper.GetString("mysql.username")
-	PASSWORD := viper.GetString("mysql.password")
-	DBNAME := viper.GetString("mysql.name")
-	PORT := viper.GetInt("mysql.port")
-	dsn := fmt.Sprintf("%s:%s@tcp(mysql:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		USERNAME, PASSWORD, PORT, DBNAME)
+	USERNAME := os.Getenv("DB_USERNAME")
+	PASSWORD := os.Getenv("DB_PASSWORD")
+	DBHOST := os.Getenv("DB_HOST")
+	DBPORT := os.Getenv("DB_PORT")
+	DBNAME := os.Getenv("DB_NAME")
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", USERNAME, PASSWORD, DBHOST, DBPORT, DBNAME)
 	fmt.Println(dsn)
+
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,

@@ -2,22 +2,19 @@ package main
 
 import (
 	"log"
+	"os"
 
-	"github.com/spf13/viper"
 	"pthw.com/asymmetric-for-biometric/config"
 	"pthw.com/asymmetric-for-biometric/server"
 )
 
 func main() {
-
-	if err := config.Init(); err != nil {
-		log.Fatalf("%s", err.Error())
+	if err := config.InitGoDotEnv(); err != nil {
+		log.Fatal("Error loading .env file")
 	}
 
 	app := server.NewApp()
-
-	if err := app.Run(viper.GetString("port")); err != nil {
+	if err := app.Run(os.Getenv("WEB_HOST")); err != nil {
 		log.Fatalf("%s", err.Error())
 	}
-
 }

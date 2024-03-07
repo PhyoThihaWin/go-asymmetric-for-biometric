@@ -33,8 +33,6 @@ COPY --from=builder /app .
 EXPOSE 9090
 
 # Starting our application
-# CMD ["go", "run", "cmd/main.go"]
-# ENTRYPOINT [ "./app/cmd/main" ]
 CMD [ "./main" ]
 
 

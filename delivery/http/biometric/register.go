@@ -1,8 +1,11 @@
 package biometric
 
 import (
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"pthw.com/asymmetric-for-biometric/internal/biometric"
+	"pthw.com/asymmetric-for-biometric/middleware"
 )
 
 func RegisterHTTPEndpoints(router *gin.Engine, uc biometric.UseCase) {
@@ -11,7 +14,14 @@ func RegisterHTTPEndpoints(router *gin.Engine, uc biometric.UseCase) {
 	authEndpoints := router.Group("/user")
 	{
 		authEndpoints.POST("/biometric", handler.CreateBiometric)
-		authEndpoints.GET("/biometric/challenge/:device_id", handler.GetChallenge)
-		authEndpoints.POST("/biometric/verify", handler.ValidateBiometric)
+	}
+
+	jwtEndpoints := authEndpoints
+	secret := os.Getenv("ACCESS_TOKEN_SECRET")
+
+	jwtEndpoints.Use(middleware.JwtAuthMiddleware(secret))
+	{
+		jwtEndpoints.GET("/biometric/challenge/:device_id", handler.GetChallenge)
+		jwtEndpoints.POST("/biometric/verify", handler.ValidateBiometric)
 	}
 }

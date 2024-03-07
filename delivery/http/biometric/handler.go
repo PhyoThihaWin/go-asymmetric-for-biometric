@@ -5,9 +5,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"pthw.com/asymmetric-for-biometric/config"
 	"pthw.com/asymmetric-for-biometric/internal/biometric"
 	"pthw.com/asymmetric-for-biometric/models"
 	"pthw.com/asymmetric-for-biometric/utils"
+	"pthw.com/asymmetric-for-biometric/utils/jwt"
 )
 
 type Handler struct {
@@ -21,30 +23,21 @@ func NewHandler(useCase biometric.UseCase) *Handler {
 }
 
 func (h *Handler) CreateBiometric(ctx *gin.Context) {
-	// UserBiometric := &models.UserBiometric{}
-	// if err := ctx.BindJSON(&UserBiometric); err != nil {
-	// 	utils.APIResponse(ctx, "Bad Request!", http.StatusBadRequest, http.MethodPost, nil)
-	// } else {
-	// 	data, _ := h.useCase.CreateBiometric(UserBiometric)
-	// 	utils.APIResponse(ctx, "Connect biometric successfully.", http.StatusCreated, http.MethodPost, data)
-	// }
 
 	UserBiometric := &models.UserBiometric{}
 	if err := ctx.BindJSON(&UserBiometric); err != nil {
-		utils.APIResponse(ctx, "Bad Request", http.StatusBadRequest, http.MethodPost, nil)
+		utils.ApiErrorResponse(ctx, http.StatusBadRequest, http.MethodPost, err.Error())
 	} else {
-		// UserBiometric := &models.UserBiometric{
-		// 	DEVICE_ID:    deviceId,
-		// 	PUBLIC_KEY:   pubKey,
-		// 	BIOMETRIC_ID: utils.RandRunes(30),
-		// }
-
 		UserBiometric.BIOMETRIC_ID = utils.RandRunes(30)
 		data, err := h.useCase.CreateBiometric(UserBiometric)
+
+		token, _ := jwt.CreateAccessToken(data, config.Secret, config.Expire)
+		response := map[string]interface{}{"token": token, "data": data}
+
 		if err != nil {
-			utils.APIResponse(ctx, err.Error(), http.StatusBadRequest, http.MethodPost, nil)
+			utils.ApiErrorResponse(ctx, http.StatusBadRequest, http.MethodPost, err.Error())
 		} else {
-			utils.APIResponse(ctx, "Connect biometric successfully.", http.StatusCreated, http.MethodPost, data)
+			utils.APIResponse(ctx, "Connect biometric successfully.", http.StatusCreated, http.MethodPost, response)
 		}
 	}
 
@@ -56,11 +49,11 @@ func (h *Handler) GetChallenge(ctx *gin.Context) {
 	deviceId := ctx.Param("device_id")
 
 	if deviceId == "" {
-		utils.APIResponse(ctx, "Bad Request", http.StatusBadRequest, http.MethodGet, nil)
+		utils.ApiErrorResponse(ctx, http.StatusBadRequest, http.MethodGet, "Bad Request")
 	} else {
 		data, err := h.useCase.GetChallenge(deviceId)
 		if err != nil {
-			utils.APIResponse(ctx, err.Error(), http.StatusBadRequest, http.MethodGet, nil)
+			utils.ApiErrorResponse(ctx, http.StatusBadRequest, http.MethodGet, err.Error())
 		} else {
 			utils.APIResponse(ctx, "Challenge retrieved", http.StatusOK, http.MethodGet, data)
 		}
@@ -78,11 +71,11 @@ func (h *Handler) ValidateBiometric(ctx *gin.Context) {
 
 	data := &ValidateBiometric{}
 	if err := ctx.BindJSON(&data); err != nil {
-		utils.APIResponse(ctx, "Bad Request", http.StatusBadRequest, http.MethodGet, nil)
+		utils.ApiErrorResponse(ctx, http.StatusBadRequest, http.MethodGet, err.Error())
 	} else {
 		data, err := h.useCase.ValidateBiometric(data.BIOMETRIC_ID, data.SIGNATURE)
 		if err != nil {
-			utils.APIResponse(ctx, err.Error(), http.StatusBadRequest, http.MethodGet, nil)
+			utils.ApiErrorResponse(ctx, http.StatusBadRequest, http.MethodGet, err.Error())
 		} else {
 			utils.APIResponse(ctx, data, http.StatusOK, http.MethodGet, data)
 		}
