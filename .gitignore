@@ -26,6 +26,8 @@ go.work
 
 # air tmp file
 tmp/
+.env
+.air.toml
 
 ### VisualStudioCode ###
 .vscode/*
