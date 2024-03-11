@@ -46,7 +46,7 @@ func (h *Handler) CreateBiometric(ctx *gin.Context) {
 }
 
 func (h *Handler) GetChallenge(ctx *gin.Context) {
-	deviceId := ctx.Param("device_id")
+	deviceId := ctx.Param("biometric_id")
 
 	if deviceId == "" {
 		utils.ApiErrorResponse(ctx, http.StatusBadRequest, http.MethodGet, "Bad Request")
@@ -61,23 +61,24 @@ func (h *Handler) GetChallenge(ctx *gin.Context) {
 }
 
 type ValidateBiometric struct {
-	BIOMETRIC_ID string `json:"biometric_id"`
-	SIGNATURE    string `json:"signature"`
+	BIOMETRIC_ID string `form:"biometric_id"`
+	SIGNATURE    string `form:"signature"`
 }
 
 func (h *Handler) ValidateBiometric(ctx *gin.Context) {
-	// biometricId := ctx.Query("biometric_id")
-	// signature := ctx.Query("signature")
+	RequestData := &ValidateBiometric{}
 
-	data := &ValidateBiometric{}
-	if err := ctx.BindJSON(&data); err != nil {
-		utils.ApiErrorResponse(ctx, http.StatusBadRequest, http.MethodGet, err.Error())
+	if err := ctx.Bind(&RequestData); err != nil {
+		utils.ApiErrorResponse(ctx, http.StatusBadRequest, ctx.Request.Method, err.Error())
+		return
+	}
+
+	fmt.Printf("\nReceived BIOMETRIC_ID: %s, SIGNATURE: %s\n", RequestData.BIOMETRIC_ID, RequestData.SIGNATURE)
+
+	data, err := h.useCase.ValidateBiometric(RequestData.BIOMETRIC_ID, RequestData.SIGNATURE)
+	if err != nil {
+		utils.ApiErrorResponse(ctx, http.StatusBadRequest, ctx.Request.Method, err.Error())
 	} else {
-		data, err := h.useCase.ValidateBiometric(data.BIOMETRIC_ID, data.SIGNATURE)
-		if err != nil {
-			utils.ApiErrorResponse(ctx, http.StatusBadRequest, http.MethodGet, err.Error())
-		} else {
-			utils.APIResponse(ctx, data, http.StatusOK, http.MethodGet, data)
-		}
+		utils.APIResponse(ctx, data, http.StatusOK, ctx.Request.Method, data)
 	}
 }

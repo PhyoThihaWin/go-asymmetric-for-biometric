@@ -28,31 +28,39 @@ func NewBiometricRepository(db *gorm.DB) *BiometricRepository {
 
 // create biometric
 func (b BiometricRepository) CreateBiometric(data *models.UserBiometric) (*models.UserBiometric, error) {
+	var result *models.UserBiometric
+	var err *error
 	if b.IsDeviceIdExist(data.DEVICE_ID) {
-		result := b.db.Where("device_id = ?", data.DEVICE_ID).Updates(&data)
+		raw := b.db.Where("device_id = ?", data.DEVICE_ID).Updates(&data)
 
 		var UserBiometric models.UserBiometric
-		result.First(&UserBiometric, "device_id = ?", data.DEVICE_ID)
-		return &UserBiometric, result.Error
+		raw.First(&UserBiometric, "device_id = ?", data.DEVICE_ID)
+		result = &UserBiometric
+		err = &raw.Error
 	} else {
-		result := b.db.Create(&data)
+		raw := b.db.Create(&data)
 
 		b.db.First(&data, &data.BIOMETRIC_ID)
-
 		fmt.Println("Result: " + strconv.FormatUint(uint64(data.ID), 10))
 
-		Challenge := models.CHALLENGE{
-			CHALLENGE: utils.RandRunes(15),
-			DEVICE_ID: data.DEVICE_ID,
-		}
-		b.CreateChallenge(&Challenge)
-
-		return data, result.Error
+		result = data
+		err = &raw.Error
 	}
+
+	Challenge := models.CHALLENGE{
+		CHALLENGE:    utils.RandRunes(15),
+		BIOMETRIC_ID: data.BIOMETRIC_ID,
+		DEVICE_ID:    data.DEVICE_ID,
+	}
+	b.CreateChallenge(&Challenge)
+
+	return result, *err
 }
 
 func (b BiometricRepository) CreateChallenge(data *models.CHALLENGE) {
-	if !b.IsDeviceIdExistInChallenge(data.DEVICE_ID) {
+	if b.IsDeviceIdExistInChallenge(data.DEVICE_ID) {
+		b.db.Where("device_id = ?", data.DEVICE_ID).Updates(&data)
+	} else {
 		b.db.Create(&data)
 	}
 }
@@ -62,10 +70,10 @@ func (b BiometricRepository) IsDeviceIdExist(deviceId string) bool {
 	result := b.db.First(&UserBiometric, "device_id = ?", deviceId)
 
 	if result.Error == gorm.ErrRecordNotFound {
-		// ID exist in the database
+		// ID does not exist in the database
 		return false
 	} else {
-		// ID does not exist in the database
+		// ID exist in the database
 		return true
 	}
 }
@@ -74,18 +82,18 @@ func (b BiometricRepository) IsDeviceIdExistInChallenge(deviceId string) bool {
 	var Challenge models.CHALLENGE
 	result := b.db.First(&Challenge, "device_id = ?", deviceId)
 	if result.Error == gorm.ErrRecordNotFound {
-		// ID exist in the database
+		// ID does not exist in the database
 		return false
 	} else {
-		// ID does not exist in the database
+		// ID exist in the database
 		return true
 	}
 }
 
 // get challenge
-func (b BiometricRepository) GetChallenge(deviceId string) (*models.CHALLENGE, error) {
+func (b BiometricRepository) GetChallenge(biometricId string) (*models.CHALLENGE, error) {
 	var Challenge models.CHALLENGE
-	result := b.db.First(&Challenge, "device_id =?", deviceId)
+	result := b.db.First(&Challenge, "biometric_id =?", biometricId)
 	return &Challenge, result.Error
 }
 

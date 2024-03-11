@@ -6,7 +6,7 @@ import (
 
 type UseCase interface {
 	CreateBiometric(data *models.UserBiometric) (*models.UserBiometric, error)
-	GetChallenge(deviceId string) (*models.CHALLENGE, error)
+	GetChallenge(biometricId string) (*models.CHALLENGE, error)
 	ValidateBiometric(biometricId string, sigature string) (string, error)
 }
 
@@ -24,8 +24,8 @@ func (b BiometricUseCase) CreateBiometric(data *models.UserBiometric) (*models.U
 	return b.biometricRepo.CreateBiometric(data)
 }
 
-func (b BiometricUseCase) GetChallenge(deviceId string) (*models.CHALLENGE, error) {
-	return b.biometricRepo.GetChallenge(deviceId)
+func (b BiometricUseCase) GetChallenge(biometricId string) (*models.CHALLENGE, error) {
+	return b.biometricRepo.GetChallenge(biometricId)
 }
 
 func (b BiometricUseCase) ValidateBiometric(biometricId string, sigature string) (string, error) {

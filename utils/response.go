@@ -14,7 +14,7 @@ type Responses struct {
 type ErrorResponse struct {
 	StatusCode int         `json:"statusCode"`
 	Method     string      `json:"method"`
-	Error      interface{} `json:"error"`
+	Error      interface{} `json:"message"`
 }
 
 func APIResponse(ctx *gin.Context, Message string, StatusCode int, Method string, Data interface{}) {

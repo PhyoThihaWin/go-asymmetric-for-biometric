@@ -21,7 +21,7 @@ func RegisterHTTPEndpoints(router *gin.Engine, uc biometric.UseCase) {
 
 	jwtEndpoints.Use(middleware.JwtAuthMiddleware(secret))
 	{
-		jwtEndpoints.GET("/biometric/challenge/:device_id", handler.GetChallenge)
+		jwtEndpoints.GET("/biometric/challenge/:biometric_id", handler.GetChallenge)
 		jwtEndpoints.POST("/biometric/verify", handler.ValidateBiometric)
 	}
 }
