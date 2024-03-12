@@ -15,13 +15,13 @@ func ValidateSignature(challenge string, signatureBase64 string, pemPublicKey st
 	// Parse PEM block
 	rsaPubKey, err := ParseRSAPublicKeyFromPEM(pemPublicKey)
 	if err != nil {
-		log.Fatal("Error parsing PKIX public key:", err)
+		log.Println("Error parsing PKIX public key:", err)
 	}
 
 	// Decode Base64 signature
 	signature, err := base64.StdEncoding.DecodeString(signatureBase64)
 	if err != nil {
-		log.Fatal("Error decoding signature:", err)
+		log.Println("Error decoding signature:", err)
 	}
 
 	// Hash the message
